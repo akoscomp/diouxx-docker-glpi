@@ -22,7 +22,7 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./glpi/:/var/www/html/glpi
+      - ./glpi_data:/var/www
     environment:
       - TIMEZONE=Europe/Brussels
     restart: always

@@ -3,7 +3,6 @@ FROM debian:11.6
 
 LABEL org.opencontainers.image.authors="github@datanest.ro"
 
-
 #Do not ask questions at installation
 ENV DEBIAN_FRONTEND noninteractive
 

@@ -1,6 +1,6 @@
-# Project to deploy GLPI with docker
+# Project to deploy GLPI 10+ with docker
 
-![Docker Pulls](https://img.shields.io/docker/pulls/diouxx/glpi) ![Docker Stars](https://img.shields.io/docker/stars/diouxx/glpi) [![](https://images.microbadger.com/badges/image/diouxx/glpi.svg)](http://microbadger.com/images/diouxx/glpi "Get your own image badge on microbadger.com") ![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/diouxx/glpi)
+![Docker Pulls](https://img.shields.io/docker/pulls/akoscomp/glpi) ![Docker Stars](https://img.shields.io/docker/stars/akoscomp/glpi) [![](https://images.microbadger.com/badges/image/akoscomp/glpi.svg)](http://microbadger.com/images/akoscomp/glpi "Get your own image badge on microbadger.com") ![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/akoscomp/glpi)
 
 # Table of Contents
 - [Project to deploy GLPI with docker](#project-to-deploy-glpi-with-docker)
@@ -41,12 +41,12 @@ More info in the 📄[Docs](https://glpi-install.readthedocs.io/en/latest/instal
 ## Deploy GLPI 
 ```sh
 docker run --name mariadb -e MARIADB_ROOT_PASSWORD=diouxx -e MARIADB_DATABASE=glpidb -e MARIADB_USER=glpi_user -e MARIADB_PASSWORD=glpi -d mariadb:10.7
-docker run --name glpi --link mariadb:mariadb -p 80:80 -d diouxx/glpi
+docker run --name glpi --link mariadb:mariadb -p 80:80 -d akoscomp/glpi
 ```
 
 ## Deploy GLPI with existing database
 ```sh
-docker run --name glpi --link yourdatabase:mariadb -p 80:80 -d diouxx/glpi
+docker run --name glpi --link yourdatabase:mariadb -p 80:80 -d akoscomp/glpi
 ```
 
 ## Deploy GLPI with database and persistence data
@@ -62,7 +62,7 @@ docker run --name mariadb -e MARIADB_ROOT_PASSWORD=diouxx -e MARIADB_DATABASE=gl
 * Then, create GLPI container with volume and link MariaDB container
 
 ```sh
-docker run --name glpi --link mariadb:mariadb --volume /var/www/html/glpi:/var/www/html/glpi -p 80:80 -d diouxx/glpi
+docker run --name glpi --link mariadb:mariadb --volume /var/www/glpi:/var/www/glpi -p 80:80 -d akoscomp/glpi
 ```
 
 Enjoy :)
@@ -72,7 +72,7 @@ Default, docker run will use the latest release of GLPI.
 For an usage on production environnement, it's recommanded to set specific release.
 Here an example for release 9.1.6 :
 ```sh
-docker run --name glpi --hostname glpi --link mariadb:mariadb --volume /var/www/html/glpi:/var/www/html/glpi -p 80:80 --env "VERSION_GLPI=9.1.6" -d diouxx/glpi
+docker run --name glpi --hostname glpi --link mariadb:mariadb --volume /var/www/glpi:/var/www/glpi -p 80:80 --env "VERSION_GLPI=9.1.6" -d akoscomp/glpi
 ```
 
 # Deploy with docker-compose
@@ -175,7 +175,7 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - /var/www/html/glpi/:/var/www/html/glpi
+      - /var/www/glpi/:/var/www/glpi
     environment:
       - TIMEZONE=Europe/Brussels
     restart: always
@@ -194,7 +194,7 @@ If you need to set timezone for Apache and PHP
 
 From commande line
 ```sh
-docker run --name glpi --hostname glpi --link mariadb:mariadb --volumes-from glpi-data -p 80:80 --env "TIMEZONE=Europe/Brussels" -d diouxx/glpi
+docker run --name glpi --hostname glpi --link mariadb:mariadb --volumes-from glpi-data -p 80:80 --env "TIMEZONE=Europe/Brussels" -d akoscomp/glpi
 ```
 
 From docker-compose

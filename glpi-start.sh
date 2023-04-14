@@ -11,6 +11,8 @@ echo "date.timezone = \"$TIMEZONE\"" > /etc/php/8.1/cli/conf.d/timezone.ini;
 fi
 
 FOLDER_GLPI=glpi/
+FOLDER_GLPI_FILES=glpi_files/
+FOLDER_GLPI_CONFIG=glpi_config/
 FOLDER_WEB=/var/www/
 
 #check if TLS_REQCERT is present
@@ -31,14 +33,17 @@ else
 	wget -P ${FOLDER_WEB} ${SRC_GLPI}
 	tar -xzf ${FOLDER_WEB}${TAR_GLPI} -C ${FOLDER_WEB}
 	rm -Rf ${FOLDER_WEB}${TAR_GLPI}
-	chown -R www-data:www-data ${FOLDER_WEB}${FOLDER_GLPI}
+	mkdir -p ${FOLDER_WEB}${FOLDER_GLPI_CONFIG}
+	mkdir -p ${FOLDER_WEB}${FOLDER_GLPI_FILES}
+	chown -R www-data:www-data ${FOLDER_WEB}${FOLDER_GLPI_CONFIG}
+	chown -R www-data:www-data ${FOLDER_WEB}${FOLDER_GLPI_FILES}
 fi
 
 #Changing the default vhost
-echo -e "<VirtualHost *:80>\n\tDocumentRoot /var/www/glpi/public\n\n\t<Directory /var/www/glpi/public>\n\t\tRequire all granted\n\t\tRewriteEngine On\n\t\tRewriteCond %{REQUEST_FILENAME} !-f\n\t\tRewriteRule ^(.*)$ index.php [QSA,L]\n\t</Directory>\n\n\tErrorLog /var/log/apache2/error-glpi.log\n\tLogLevel warn\n\tCustomLog /var/log/apache2/access-glpi.log combined\n</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
+echo -e "<VirtualHost *:80>\n\tDocumentRoot ${FOLDER_WEB}${FOLDER_GLPI}public\n\n\t<Directory ${FOLDER_WEB}${FOLDER_GLPI}public>\n\t\tRequire all granted\n\t\tRewriteEngine On\n\t\tRewriteCond %{REQUEST_FILENAME} !-f\n\t\tRewriteRule ^(.*)$ index.php [QSA,L]\n\t</Directory>\n\n\tErrorLog /var/log/apache2/error-glpi.log\n\tLogLevel warn\n\tCustomLog /var/log/apache2/access-glpi.log combined\n</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
 #Add scheduled task by cron and enable
-echo "*/2 * * * * www-data /usr/bin/php /var/www/html/glpi/front/cron.php &>/dev/null" >> /etc/cron.d/glpi
+echo -e "#SHELL=/bin/bash\nGLPI_VAR_DIR=${FOLDER_WEB}${FOLDER_GLPI_FILES}\nGLPI_CONFIG_DIR=${FOLDER_WEB}${FOLDER_GLPI_CONFIG}\n*/2 * * * * www-data /usr/bin/php /var/www/glpi/front/cron.php &>/dev/null" >> /etc/cron.d/glpi
 #Start cron service
 service cron start
 
