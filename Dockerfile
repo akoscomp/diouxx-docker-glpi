@@ -1,32 +1,35 @@
-#On choisit une debian
+#We choose a debian
 FROM debian:11.6
 
-LABEL org.opencontainers.image.authors="github@diouxx.be"
+LABEL org.opencontainers.image.authors="github@datanest.ro"
 
 
-#Ne pas poser de question à l'installation
+#Do not ask questions at installation
 ENV DEBIAN_FRONTEND noninteractive
 
-#Installation d'apache et de php7.4 avec extension
-RUN apt update \
-&& apt install --yes --no-install-recommends \
+#Installation of php repositories 8.1
+RUN apt update \ 
+&& apt --yes install apt-transport-https lsb-release ca-certificates curl \
+&& curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg \ 
+&& sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
+&& apt update
+
+#Install apache and php 8.1 with extension
+RUN apt install --yes --no-install-recommends \
 apache2 \
-php7.4 \
-php7.4-mysql \
-php7.4-ldap \
-php7.4-xmlrpc \
-php7.4-imap \
-curl \
-php7.4-curl \
-php7.4-gd \
-php7.4-mbstring \
-php7.4-xml \
-php7.4-apcu-bc \
+php8.1 \
+php8.1-mysql \
+php8.1-ldap \
+php8.1-xmlrpc \
+php8.1-imap \
+php8.1-curl \
+php8.1-gd \
+php8.1-mbstring \
+php8.1-xml \
 php-cas \
-php7.4-intl \
-php7.4-zip \
-php7.4-bz2 \
-php7.4-redis \
+php8.1-intl \
+php8.1-zip \
+php8.1-bz2 \
 cron \
 wget \
 ca-certificates \
@@ -38,10 +41,10 @@ libsasl2-modules \
 libsasl2-modules-db \
 && rm -rf /var/lib/apt/lists/*
 
-#Copie et execution du script pour l'installation et l'initialisation de GLPI
+#Copy and execution of the script for the installation and initialization of GLPI
 COPY glpi-start.sh /opt/
 RUN chmod +x /opt/glpi-start.sh
 ENTRYPOINT ["/opt/glpi-start.sh"]
 
-#Exposition des ports
+#Expose ports
 EXPOSE 80 443

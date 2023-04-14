@@ -23,7 +23,7 @@
 
 # Introduction
 
-Install and run an GLPI instance with docker
+Install and run an GLPI 10+ instance with docker
 
 ## Default accounts
 
@@ -95,7 +95,7 @@ services:
 
 #GLPI Container
   glpi:
-    image: diouxx/glpi
+    image: akoscomp/glpi
     container_name : glpi
     hostname: glpi
     ports:
@@ -121,11 +121,11 @@ services:
 
 #GLPI Container
   glpi:
-    image: diouxx/glpi
+    image: akoscomp/glpi
     container_name : glpi
     hostname: glpi
     environment:
-      - VERSION_GLPI=9.5.6
+      - VERSION_GLPI=10.0.7
     ports:
       - "80:80"
 ```
@@ -167,7 +167,7 @@ services:
 
 #GLPI Container
   glpi:
-    image: diouxx/glpi
+    image: akoscomp/glpi
     container_name : glpi
     hostname: glpi
     ports:
