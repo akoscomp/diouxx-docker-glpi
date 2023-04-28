@@ -1,4 +1,4 @@
-version: "3.2"
+version: "3.8"
 
 services:
 #MariaDB Container
@@ -25,4 +25,6 @@ services:
       - ./glpi_data:/var/www
     environment:
       - TIMEZONE=Europe/Brussels
+      - GLPI_VAR_DIR=/var/www/glpi_files
+      - GLPI_CONFIG_DIR=/var/www/glpi_config
     restart: always

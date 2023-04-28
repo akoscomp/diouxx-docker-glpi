@@ -2,6 +2,12 @@
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/akoscomp/glpi) ![Docker Stars](https://img.shields.io/docker/stars/akoscomp/glpi) [![](https://images.microbadger.com/badges/image/akoscomp/glpi.svg)](http://microbadger.com/images/akoscomp/glpi "Get your own image badge on microbadger.com") ![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/akoscomp/glpi)
 
+# Summary
+Make backup before upgrade and migration from old installation.
+This image is a secure instalation of GLPI 10+ version. Use the new recomandation to store the data and the config files outside of web folder.
+The image default instalation install separete GLPI_FILES and GLPI_CONFIG. The image can switch automaticaly from an old structure to a new structure.
+If you want to keep the files and config folder in glpi webroot folder, remove the GLPI_VAR_DIR and GLPI_CONFIG_DIR environment variables.
+
 # Table of Contents
 - [Project to deploy GLPI with docker](#project-to-deploy-glpi-with-docker)
 - [Table of Contents](#table-of-contents)
@@ -36,46 +42,8 @@ More info in the 📄[Docs](https://glpi-install.readthedocs.io/en/latest/instal
 | normal/normal      	| "normal" account  	|
 | post-only/postonly 	| post-only account 	|
 
-# Deploy with CLI
 
-## Deploy GLPI 
-```sh
-docker run --name mariadb -e MARIADB_ROOT_PASSWORD=diouxx -e MARIADB_DATABASE=glpidb -e MARIADB_USER=glpi_user -e MARIADB_PASSWORD=glpi -d mariadb:10.7
-docker run --name glpi --link mariadb:mariadb -p 80:80 -d akoscomp/glpi
-```
-
-## Deploy GLPI with existing database
-```sh
-docker run --name glpi --link yourdatabase:mariadb -p 80:80 -d akoscomp/glpi
-```
-
-## Deploy GLPI with database and persistence data
-
-For an usage on production environnement or daily usage, it's recommanded to use container with volumes to persistent data.
-
-* First, create MariaDB container with volume
-
-```sh
-docker run --name mariadb -e MARIADB_ROOT_PASSWORD=diouxx -e MARIADB_DATABASE=glpidb -e MARIADB_USER=glpi_user -e MARIADB_PASSWORD=glpi --volume /var/lib/mysql:/var/lib/mysql -d mariadb:10.7
-```
-
-* Then, create GLPI container with volume and link MariaDB container
-
-```sh
-docker run --name glpi --link mariadb:mariadb --volume /var/www/glpi:/var/www/glpi -p 80:80 -d akoscomp/glpi
-```
-
-Enjoy :)
-
-## Deploy a specific release of GLPI
-Default, docker run will use the latest release of GLPI.
-For an usage on production environnement, it's recommanded to set specific release.
-Here an example for release 9.1.6 :
-```sh
-docker run --name glpi --hostname glpi --link mariadb:mariadb --volume /var/www/glpi:/var/www/glpi -p 80:80 --env "VERSION_GLPI=9.1.6" -d akoscomp/glpi
-```
-
-# Deploy with docker-compose
+# Deploy GLPI with docker-compose
 
 ## Deploy without persistence data ( for quickly test )
 ```yaml
@@ -87,11 +55,8 @@ services:
     image: mariadb:10.7
     container_name: mariadb
     hostname: mariadb
-    environment:
-      - MARIADB_ROOT_PASSWORD=password
-      - MARIADB_DATABASE=glpidb
-      - MARIADB_USER=glpi_user
-      - MARIADB_PASSWORD=glpi
+    env_file:
+      - ./mariadb.env
 
 #GLPI Container
   glpi:
@@ -151,7 +116,7 @@ MARIADB_PASSWORD=glpi
 
 ### docker-compose .yml
 ```yaml
-version: "3.2"
+version: "3.8"
 
 services:
 #MariaDB Container
@@ -160,7 +125,7 @@ services:
     container_name: mariadb
     hostname: mariadb
     volumes:
-      - /var/lib/mysql:/var/lib/mysql
+      - ./mariadb:/var/lib/mysql
     env_file:
       - ./mariadb.env
     restart: always
@@ -175,16 +140,18 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - /var/www/glpi/:/var/www/glpi
+      - ./glpi_data:/var/www
     environment:
       - TIMEZONE=Europe/Brussels
+      - GLPI_VAR_DIR=/var/www/glpi_files
+      - GLPI_CONFIG_DIR=/var/www/glpi_config
     restart: always
 ```
 
 To deploy, just run the following command on the same directory as files
 
 ```sh
-docker-compose up -d
+docker compose up -d
 ```
 
 # Environnment variables
@@ -192,15 +159,12 @@ docker-compose up -d
 ## TIMEZONE
 If you need to set timezone for Apache and PHP
 
-From commande line
-```sh
-docker run --name glpi --hostname glpi --link mariadb:mariadb --volumes-from glpi-data -p 80:80 --env "TIMEZONE=Europe/Brussels" -d akoscomp/glpi
-```
+## GLPI_VAR_DIR
+You can set custom files directory
 
-From docker-compose
+## GLPI_CONFIG_DIR
+You can set custom config directory
 
-Modify this settings
-```yaml
-environment:
-     TIMEZONE=Europe/Brussels
-```
+## VERSION_GLPI
+Can specify specific glpi release.
+The image can't upgrade the actual version, it works only for new installations.
