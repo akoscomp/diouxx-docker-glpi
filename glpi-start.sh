@@ -38,10 +38,10 @@ if [[ -z "${GLPI_VAR_DIR}" ]]; then
 else
   mkdir -p ${GLPI_VAR_DIR}
   ### Fix GLPI install error if use external GLPI_FILES folder.
-  if [ -d "${GLPI_VAR_DIR}_tmp" ]; then
+  if [ -d "${GLPI_VAR_DIR}/_tmp" ]; then
  	  echo "GLPI data folder exists"
   else
-	  echo "Fix GLPI data folder absence"
+	  echo "Fix GLPI data folder absence, move files to new location"
 	  cp -r ${FOLDER_GLPI}/files/* ${GLPI_VAR_DIR}
 	  rm -rf ${FOLDER_GLPI}/files
   fi
@@ -54,7 +54,8 @@ if [[ -z "${GLPI_CONFIG_DIR}" ]]; then
 else
   #Test if is a new installation or migration
   mkdir -p ${GLPI_CONFIG_DIR}
-  if [ ! -f "${GLPI_CONFIG_DIR}\config_db.php" ]; then
+  if [ ! -f "${GLPI_CONFIG_DIR}/config_db.php" ]; then
+    echo "Move config files to new location"
 	  cp -r ${FOLDER_GLPI}/config/* ${GLPI_CONFIG_DIR}
 	  chown -R www-data:www-data ${GLPI_CONFIG_DIR}
   fi
@@ -103,7 +104,6 @@ else
 fi
 
 #Changing the default vhost
-#echo -e "<VirtualHost *:80>\n\tDocumentRoot ${FOLDER_WEB}${FOLDER_GLPI}public\n\n\t<Directory ${FOLDER_WEB}${FOLDER_GLPI}public>\n\t\tRequire all granted\n\t\tRewriteEngine On\n\t\tRewriteCond %{REQUEST_FILENAME} !-f\n\t\tRewriteRule ^(.*)$ index.php [QSA,L]\n\t</Directory>\n\n\tErrorLog /var/log/apache2/error-glpi.log\n\tLogLevel warn\n\tCustomLog /var/log/apache2/access-glpi.log combined\n</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 cat << EOF > /etc/apache2/sites-available/000-default.conf
 <VirtualHost *:80>
   DocumentRoot ${FOLDER_GLPI}/public
